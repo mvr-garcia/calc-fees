@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/mvr-garcia/calc-fees/internal/order/infra/database"
 	usecase "github.com/mvr-garcia/calc-fees/internal/order/use_case"
@@ -46,5 +47,6 @@ func main() {
 		}
 		msg.Ack(false)
 		fmt.Println(outputDTO)
+		time.Sleep(500 * time.Millisecond)
 	}
 }

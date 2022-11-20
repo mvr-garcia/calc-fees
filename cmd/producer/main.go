@@ -59,10 +59,11 @@ func main() {
 	}
 	defer ch.Close()
 
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10000; i++ {
 		err = Publish(ch, GenerateOrders())
 		if err != nil {
 			panic(err)
 		}
+		time.Sleep(300 * time.Millisecond)
 	}
 }
