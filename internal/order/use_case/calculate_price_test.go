@@ -45,7 +45,7 @@ func (suite *CalculateFinalPriceUseCaseTestSuite) TestCalculateFinalPrice() {
 
 	// when
 	useCase := NewCalculateFinalPriceUseCase(suite.OrderRepository)
-	orderOutput, err := useCase.Calculate(
+	orderOutput, err := useCase.Execute(
 		OrderInputDTO{
 			ID:    order.ID,
 			Price: order.Price,
