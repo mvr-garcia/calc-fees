@@ -18,7 +18,7 @@ func NewGetTotalUseCase(orderRepository entity.OrderRepositoryInterface) *GetTot
 	}
 }
 
-func (g *GetTotalUseCase) GetTotal() (*TotalOutputDTO, error) {
+func (g *GetTotalUseCase) Execute() (*TotalOutputDTO, error) {
 	total, err := g.OrderRepository.GetTotal()
 	if err != nil {
 		return nil, err

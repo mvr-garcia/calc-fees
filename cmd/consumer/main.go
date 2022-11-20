@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/mvr-garcia/calc-fees/internal/order/infra/database"
@@ -35,7 +36,31 @@ func main() {
 	out := make(chan amqp.Delivery)
 	go rabbitmq.Consume(ch, out)
 
-	for msg := range out {
+	qtdWorkers := 30
+	for i := 1; i <= qtdWorkers; i++ {
+		go worker(out, &uc, i)
+	}
+
+	http.HandleFunc(
+		"/total",
+		func(w http.ResponseWriter, r *http.Request) {
+			uc := usecase.GetTotalUseCase{OrderRepository: repo}
+
+			total, err := uc.Execute()
+			if err != nil {
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte(err.Error()))
+			}
+
+			json.NewEncoder(w).Encode(total)
+		},
+	)
+
+	http.ListenAndServe(":8080", nil)
+}
+
+func worker(deliveryMessage <-chan amqp.Delivery, uc *usecase.CalculateFinalPriceUseCase, workerID int) {
+	for msg := range deliveryMessage {
 		var inputDTO usecase.OrderInputDTO
 		err := json.Unmarshal(msg.Body, &inputDTO)
 		if err != nil {
@@ -46,7 +71,7 @@ func main() {
 			panic(outputDTO)
 		}
 		msg.Ack(false)
-		fmt.Println(outputDTO)
-		time.Sleep(500 * time.Millisecond)
+		fmt.Printf("Worker ID: %d has processed Order ID: %s\n", workerID, outputDTO.ID)
+		time.Sleep(1 * time.Second)
 	}
 }
