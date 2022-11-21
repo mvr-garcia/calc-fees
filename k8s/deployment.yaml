@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calc-worker
+spec:
+  selector:
+    matchLabels:
+      app: calc-worker
+  template:
+    metadata:
+      labels:
+        app: calc-worker
+    spec:
+      containers:
+      - name: calc-worker
+        image: mvr-garcia/calc-fees:latest
+        ports:
+        - containerPort: 8080
